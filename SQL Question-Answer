@@ -1,0 +1,21 @@
+WITH NeighborhoodStats AS (
+    SELECT
+        NEIGHBORHOOD,
+        BUILDING_CLASS,
+        AVG(SALE_PRICE) AS avg_price_neighborhood,
+        STDDEV(SALE_PRICE) AS std_dev_price_neighborhood
+    FROM real_estate_NYC
+    GROUP BY NEIGHBORHOOD, BUILDING_CLASS
+)
+
+
+SELECT
+    r.*,
+    (r.SALE_PRICE - ns.avg_price_neighborhood) / ns.std_dev_price_neighborhood AS sale_price_zscore_neighborhood,
+    r.SQUARE_FEET / r.UNITS AS square_ft_per_unit,
+    r.SALE_PRICE / r.UNITS AS price_per_unit
+FROM
+    real_estate_NYC r
+JOIN
+    NeighborhoodStats ns
+    ON r.NEIGHBORHOOD = ns.NEIGHBORHOOD AND r.BUILDING_CLASS = ns.BUILDING_CLASS;
